@@ -1,5 +1,4 @@
 // File: @openzeppelin/contracts/utils/introspection/IERC165.sol
-
 // SPDX-License-Identifier: MIT
 
 pragma solidity ^0.8.0;
@@ -1306,6 +1305,455 @@ abstract contract Ownable is Context {
     }
 }
 
+// File: contracts/mumbai/ContextMixin.sol
+
+pragma solidity ^0.8.0;
+
+abstract contract ContextMixin {
+    function msgSender()
+        internal
+        virtual
+        view
+        returns (address payable sender)
+    {
+        if (msg.sender == address(this)) {
+            bytes memory array = msg.data;
+            uint256 index = msg.data.length;
+            assembly {
+                // Load the 32 bytes word from memory with the address on the lower 20 bytes, and mask those.
+                sender := and(
+                    mload(add(array, index)),
+                    0xffffffffffffffffffffffffffffffffffffffff
+                )
+            }
+        } else {
+            sender = payable(msg.sender);
+        }
+        return sender;
+    }
+}
+
+// File: @openzeppelin/contracts/utils/math/SafeMath.sol
+
+
+pragma solidity ^0.8.0;
+
+// CAUTION
+// This version of SafeMath should only be used with Solidity 0.8 or later,
+// because it relies on the compiler's built in overflow checks.
+
+/**
+ * @dev Wrappers over Solidity's arithmetic operations.
+ *
+ * NOTE: `SafeMath` is no longer needed starting with Solidity 0.8. The compiler
+ * now has built in overflow checking.
+ */
+library SafeMath {
+    /**
+     * @dev Returns the addition of two unsigned integers, with an overflow flag.
+     *
+     * _Available since v3.4._
+     */
+    function tryAdd(uint256 a, uint256 b) internal pure returns (bool, uint256) {
+        unchecked {
+            uint256 c = a + b;
+            if (c < a) return (false, 0);
+            return (true, c);
+        }
+    }
+
+    /**
+     * @dev Returns the substraction of two unsigned integers, with an overflow flag.
+     *
+     * _Available since v3.4._
+     */
+    function trySub(uint256 a, uint256 b) internal pure returns (bool, uint256) {
+        unchecked {
+            if (b > a) return (false, 0);
+            return (true, a - b);
+        }
+    }
+
+    /**
+     * @dev Returns the multiplication of two unsigned integers, with an overflow flag.
+     *
+     * _Available since v3.4._
+     */
+    function tryMul(uint256 a, uint256 b) internal pure returns (bool, uint256) {
+        unchecked {
+            // Gas optimization: this is cheaper than requiring 'a' not being zero, but the
+            // benefit is lost if 'b' is also tested.
+            // See: https://github.com/OpenZeppelin/openzeppelin-contracts/pull/522
+            if (a == 0) return (true, 0);
+            uint256 c = a * b;
+            if (c / a != b) return (false, 0);
+            return (true, c);
+        }
+    }
+
+    /**
+     * @dev Returns the division of two unsigned integers, with a division by zero flag.
+     *
+     * _Available since v3.4._
+     */
+    function tryDiv(uint256 a, uint256 b) internal pure returns (bool, uint256) {
+        unchecked {
+            if (b == 0) return (false, 0);
+            return (true, a / b);
+        }
+    }
+
+    /**
+     * @dev Returns the remainder of dividing two unsigned integers, with a division by zero flag.
+     *
+     * _Available since v3.4._
+     */
+    function tryMod(uint256 a, uint256 b) internal pure returns (bool, uint256) {
+        unchecked {
+            if (b == 0) return (false, 0);
+            return (true, a % b);
+        }
+    }
+
+    /**
+     * @dev Returns the addition of two unsigned integers, reverting on
+     * overflow.
+     *
+     * Counterpart to Solidity's `+` operator.
+     *
+     * Requirements:
+     *
+     * - Addition cannot overflow.
+     */
+    function add(uint256 a, uint256 b) internal pure returns (uint256) {
+        return a + b;
+    }
+
+    /**
+     * @dev Returns the subtraction of two unsigned integers, reverting on
+     * overflow (when the result is negative).
+     *
+     * Counterpart to Solidity's `-` operator.
+     *
+     * Requirements:
+     *
+     * - Subtraction cannot overflow.
+     */
+    function sub(uint256 a, uint256 b) internal pure returns (uint256) {
+        return a - b;
+    }
+
+    /**
+     * @dev Returns the multiplication of two unsigned integers, reverting on
+     * overflow.
+     *
+     * Counterpart to Solidity's `*` operator.
+     *
+     * Requirements:
+     *
+     * - Multiplication cannot overflow.
+     */
+    function mul(uint256 a, uint256 b) internal pure returns (uint256) {
+        return a * b;
+    }
+
+    /**
+     * @dev Returns the integer division of two unsigned integers, reverting on
+     * division by zero. The result is rounded towards zero.
+     *
+     * Counterpart to Solidity's `/` operator.
+     *
+     * Requirements:
+     *
+     * - The divisor cannot be zero.
+     */
+    function div(uint256 a, uint256 b) internal pure returns (uint256) {
+        return a / b;
+    }
+
+    /**
+     * @dev Returns the remainder of dividing two unsigned integers. (unsigned integer modulo),
+     * reverting when dividing by zero.
+     *
+     * Counterpart to Solidity's `%` operator. This function uses a `revert`
+     * opcode (which leaves remaining gas untouched) while Solidity uses an
+     * invalid opcode to revert (consuming all remaining gas).
+     *
+     * Requirements:
+     *
+     * - The divisor cannot be zero.
+     */
+    function mod(uint256 a, uint256 b) internal pure returns (uint256) {
+        return a % b;
+    }
+
+    /**
+     * @dev Returns the subtraction of two unsigned integers, reverting with custom message on
+     * overflow (when the result is negative).
+     *
+     * CAUTION: This function is deprecated because it requires allocating memory for the error
+     * message unnecessarily. For custom revert reasons use {trySub}.
+     *
+     * Counterpart to Solidity's `-` operator.
+     *
+     * Requirements:
+     *
+     * - Subtraction cannot overflow.
+     */
+    function sub(
+        uint256 a,
+        uint256 b,
+        string memory errorMessage
+    ) internal pure returns (uint256) {
+        unchecked {
+            require(b <= a, errorMessage);
+            return a - b;
+        }
+    }
+
+    /**
+     * @dev Returns the integer division of two unsigned integers, reverting with custom message on
+     * division by zero. The result is rounded towards zero.
+     *
+     * Counterpart to Solidity's `/` operator. Note: this function uses a
+     * `revert` opcode (which leaves remaining gas untouched) while Solidity
+     * uses an invalid opcode to revert (consuming all remaining gas).
+     *
+     * Requirements:
+     *
+     * - The divisor cannot be zero.
+     */
+    function div(
+        uint256 a,
+        uint256 b,
+        string memory errorMessage
+    ) internal pure returns (uint256) {
+        unchecked {
+            require(b > 0, errorMessage);
+            return a / b;
+        }
+    }
+
+    /**
+     * @dev Returns the remainder of dividing two unsigned integers. (unsigned integer modulo),
+     * reverting with custom message when dividing by zero.
+     *
+     * CAUTION: This function is deprecated because it requires allocating memory for the error
+     * message unnecessarily. For custom revert reasons use {tryMod}.
+     *
+     * Counterpart to Solidity's `%` operator. This function uses a `revert`
+     * opcode (which leaves remaining gas untouched) while Solidity uses an
+     * invalid opcode to revert (consuming all remaining gas).
+     *
+     * Requirements:
+     *
+     * - The divisor cannot be zero.
+     */
+    function mod(
+        uint256 a,
+        uint256 b,
+        string memory errorMessage
+    ) internal pure returns (uint256) {
+        unchecked {
+            require(b > 0, errorMessage);
+            return a % b;
+        }
+    }
+}
+
+// File: contracts/mumbai/EIP712Base.sol
+
+contract Initializable {
+    bool inited = false;
+
+    modifier initializer() {
+        require(!inited, "already inited");
+        _;
+        inited = true;
+    }
+}
+
+/**
+ * https://github.com/maticnetwork/pos-portal/blob/master/contracts/common/EIP712Base.sol
+ */
+contract EIP712Base is Initializable {
+    struct EIP712Domain {
+        string name;
+        string version;
+        address verifyingContract;
+        bytes32 salt;
+    }
+
+    string constant public ERC712_VERSION = "1";
+
+    bytes32 internal constant EIP712_DOMAIN_TYPEHASH = keccak256(
+        bytes(
+            "EIP712Domain(string name,string version,address verifyingContract,bytes32 salt)"
+        )
+    );
+    bytes32 internal domainSeperator;
+
+    // supposed to be called once while initializing.
+    // one of the contractsa that inherits this contract follows proxy pattern
+    // so it is not possible to do this in a constructor
+    function _initializeEIP712(
+        string memory name
+    )
+        internal
+        initializer
+    {
+        _setDomainSeperator(name);
+    }
+
+    function _setDomainSeperator(string memory name) internal {
+        domainSeperator = keccak256(
+            abi.encode(
+                EIP712_DOMAIN_TYPEHASH,
+                keccak256(bytes(name)),
+                keccak256(bytes(ERC712_VERSION)),
+                address(this),
+                bytes32(getChainId())
+            )
+        );
+    }
+
+    function getDomainSeperator() public view returns (bytes32) {
+        return domainSeperator;
+    }
+
+    function getChainId() public view returns (uint256) {
+        uint256 id;
+        assembly {
+            id := chainid()
+        }
+        return id;
+    }
+
+    /**
+     * Accept message hash and returns hash message in EIP712 compatible form
+     * So that it can be used to recover signer from signature signed using EIP712 formatted data
+     * https://eips.ethereum.org/EIPS/eip-712
+     * "\\x19" makes the encoding deterministic
+     * "\\x01" is the version byte to make it compatible to EIP-191
+     */
+    function toTypedMessageHash(bytes32 messageHash)
+        internal
+        view
+        returns (bytes32)
+    {
+        return
+            keccak256(
+                abi.encodePacked("\x19\x01", getDomainSeperator(), messageHash)
+            );
+    }
+}
+
+// File: contracts/mumbai/NativeMetaTransaction.sol
+
+pragma solidity ^0.8.0;
+
+
+
+contract NativeMetaTransaction is EIP712Base {
+    using SafeMath for uint256;
+    bytes32 private constant META_TRANSACTION_TYPEHASH = keccak256(
+        bytes(
+            "MetaTransaction(uint256 nonce,address from,bytes functionSignature)"
+        )
+    );
+    event MetaTransactionExecuted(
+        address userAddress,
+        address payable relayerAddress,
+        bytes functionSignature
+    );
+    mapping(address => uint256) nonces;
+
+    /*
+     * Meta transaction structure.
+     * No point of including value field here as if user is doing value transfer then he has the funds to pay for gas
+     * He should call the desired function directly in that case.
+     */
+    struct MetaTransaction {
+        uint256 nonce;
+        address from;
+        bytes functionSignature;
+    }
+
+    function executeMetaTransaction(
+        address userAddress,
+        bytes memory functionSignature,
+        bytes32 sigR,
+        bytes32 sigS,
+        uint8 sigV
+    ) public payable returns (bytes memory) {
+        MetaTransaction memory metaTx = MetaTransaction({
+            nonce: nonces[userAddress],
+            from: userAddress,
+            functionSignature: functionSignature
+        });
+
+        require(
+            verify(userAddress, metaTx, sigR, sigS, sigV),
+            "Signer and signature do not match"
+        );
+
+        // increase nonce for user (to avoid re-use)
+        nonces[userAddress] = nonces[userAddress].add(1);
+
+        emit MetaTransactionExecuted(
+            userAddress,
+            payable(msg.sender),
+            functionSignature
+        );
+
+        // Append userAddress and relayer address at the end to extract it from calling context
+        (bool success, bytes memory returnData) = address(this).call(
+            abi.encodePacked(functionSignature, userAddress)
+        );
+        require(success, "Function call not successful");
+
+        return returnData;
+    }
+
+    function hashMetaTransaction(MetaTransaction memory metaTx)
+        internal
+        pure
+        returns (bytes32)
+    {
+        return
+            keccak256(
+                abi.encode(
+                    META_TRANSACTION_TYPEHASH,
+                    metaTx.nonce,
+                    metaTx.from,
+                    keccak256(metaTx.functionSignature)
+                )
+            );
+    }
+
+    function getNonce(address user) public view returns (uint256 nonce) {
+        nonce = nonces[user];
+    }
+
+    function verify(
+        address signer,
+        MetaTransaction memory metaTx,
+        bytes32 sigR,
+        bytes32 sigS,
+        uint8 sigV
+    ) internal view returns (bool) {
+        require(signer != address(0), "NativeMetaTransaction: INVALID_SIGNER");
+        return
+            signer ==
+            ecrecover(
+                toTypedMessageHash(hashMetaTransaction(metaTx)),
+                sigV,
+                sigR,
+                sigS
+            );
+    }
+}
+
 // File: contracts/OpenseaPolygonERC721.sol
 
 pragma solidity ^0.8.0;
@@ -1315,19 +1763,19 @@ pragma solidity ^0.8.0;
 
 
 
-contract OpenSeaPolygonERC721 is ERC721URIStorage, ERC721Enumerable, Ownable {
+
+
+// NativeMetaTransaction support gasless transfer in OpenSea
+contract OpenSeaPolygonERC721 is ERC721URIStorage, ERC721Enumerable, Ownable, ContextMixin, NativeMetaTransaction {
     //Opensea mumbai ERC721 proxy 0xff7ca10af37178bdd056628ef42fd7f799fac77c
 
     using Strings for uint256;
 
     event PermanentURI(string _value, uint256 indexed _id);
-    //EIP-2309 Lazy-batch-mint test
-    event ConsecutiveTransfer(uint256 indexed fromTokenId, uint256 toTokenId, address indexed fromAddress, address indexed toAddress);
+    event Debug(address indexed caller);
 
-    constructor(string memory name_, string memory symbol_) ERC721(name_, symbol_) {}
-
-    function lazyBatchMintTest(uint256 fromTokenId, uint256 toTokenId) external onlyOwner {
-        emit ConsecutiveTransfer(fromTokenId, toTokenId, address(0), owner());
+    constructor(string memory name_, string memory symbol_) ERC721(name_, symbol_) {
+        _initializeEIP712(name_);
     }
 
     function mint(address to, uint256 tokenId) external onlyOwner {
@@ -1347,6 +1795,7 @@ contract OpenSeaPolygonERC721 is ERC721URIStorage, ERC721Enumerable, Ownable {
     function _burn(uint256 tokenId) internal virtual override(ERC721, ERC721URIStorage) {
         super._burn(tokenId);
     }
+
     function supportsInterface(bytes4 interfaceId) public view virtual override(ERC721, ERC721Enumerable) returns (bool) {
         return super.supportsInterface(interfaceId);
     }
@@ -1362,8 +1811,20 @@ contract OpenSeaPolygonERC721 is ERC721URIStorage, ERC721Enumerable, Ownable {
         return "ipfs://QmbLGXvJCVK9Btymwm8htKBZgsTbEHTPZLd5BTF3PRTHRm/";
     }
 
+    function _msgSender()
+        internal
+        override
+        view
+        returns (address sender)
+    {
+        return ContextMixin.msgSender();
+    }
+
     /**
     * Override isApprovedForAll to auto-approve OS's proxy contract
+    * If not overriden, need to implement MetaTransaction for it
+    * Not sure why, with approved for all, opensea still unable to make gasless transfer.
+    * But, gasless sales works
     */
     function isApprovedForAll(
         address _owner,

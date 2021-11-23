@@ -38,6 +38,18 @@ export interface ApprovalForAll {
   };
 }
 
+export interface MetaTransactionExecuted {
+  name: "MetaTransactionExecuted";
+  args: {
+    userAddress: string;
+    relayerAddress: string;
+    functionSignature: string;
+    0: string;
+    1: string;
+    2: string;
+  };
+}
+
 export interface OwnershipTransferred {
   name: "OwnershipTransferred";
   args: {
@@ -73,11 +85,14 @@ export interface Transfer {
 type AllEvents =
   | Approval
   | ApprovalForAll
+  | MetaTransactionExecuted
   | OwnershipTransferred
   | PermanentURI
   | Transfer;
 
 export interface OpenSeaPolygonERC721Instance extends Truffle.ContractInstance {
+  ERC712_VERSION(txDetails?: Truffle.TransactionDetails): Promise<string>;
+
   /**
    * See {IERC721-approve}.
    */
@@ -109,6 +124,41 @@ export interface OpenSeaPolygonERC721Instance extends Truffle.ContractInstance {
    */
   balanceOf(owner: string, txDetails?: Truffle.TransactionDetails): Promise<BN>;
 
+  executeMetaTransaction: {
+    (
+      userAddress: string,
+      functionSignature: string,
+      sigR: string,
+      sigS: string,
+      sigV: number | BN | string,
+      txDetails?: Truffle.TransactionDetails
+    ): Promise<Truffle.TransactionResponse<AllEvents>>;
+    call(
+      userAddress: string,
+      functionSignature: string,
+      sigR: string,
+      sigS: string,
+      sigV: number | BN | string,
+      txDetails?: Truffle.TransactionDetails
+    ): Promise<string>;
+    sendTransaction(
+      userAddress: string,
+      functionSignature: string,
+      sigR: string,
+      sigS: string,
+      sigV: number | BN | string,
+      txDetails?: Truffle.TransactionDetails
+    ): Promise<string>;
+    estimateGas(
+      userAddress: string,
+      functionSignature: string,
+      sigR: string,
+      sigS: string,
+      sigV: number | BN | string,
+      txDetails?: Truffle.TransactionDetails
+    ): Promise<number>;
+  };
+
   /**
    * See {IERC721-getApproved}.
    */
@@ -116,6 +166,12 @@ export interface OpenSeaPolygonERC721Instance extends Truffle.ContractInstance {
     tokenId: number | BN | string,
     txDetails?: Truffle.TransactionDetails
   ): Promise<string>;
+
+  getChainId(txDetails?: Truffle.TransactionDetails): Promise<BN>;
+
+  getDomainSeperator(txDetails?: Truffle.TransactionDetails): Promise<string>;
+
+  getNonce(user: string, txDetails?: Truffle.TransactionDetails): Promise<BN>;
 
   /**
    * See {IERC721Metadata-name}.
@@ -285,7 +341,7 @@ export interface OpenSeaPolygonERC721Instance extends Truffle.ContractInstance {
   ): Promise<string>;
 
   /**
-   * Override isApprovedForAll to auto-approve OS's proxy contract
+   * Override isApprovedForAll to auto-approve OS's proxy contract If not overriden, need to implement MetaTransaction for it Not sure why, with approved for all, opensea still unable to make gasless transfer. But, gasless sales works
    */
   isApprovedForAll(
     _owner: string,
@@ -294,6 +350,8 @@ export interface OpenSeaPolygonERC721Instance extends Truffle.ContractInstance {
   ): Promise<boolean>;
 
   methods: {
+    ERC712_VERSION(txDetails?: Truffle.TransactionDetails): Promise<string>;
+
     /**
      * See {IERC721-approve}.
      */
@@ -328,6 +386,41 @@ export interface OpenSeaPolygonERC721Instance extends Truffle.ContractInstance {
       txDetails?: Truffle.TransactionDetails
     ): Promise<BN>;
 
+    executeMetaTransaction: {
+      (
+        userAddress: string,
+        functionSignature: string,
+        sigR: string,
+        sigS: string,
+        sigV: number | BN | string,
+        txDetails?: Truffle.TransactionDetails
+      ): Promise<Truffle.TransactionResponse<AllEvents>>;
+      call(
+        userAddress: string,
+        functionSignature: string,
+        sigR: string,
+        sigS: string,
+        sigV: number | BN | string,
+        txDetails?: Truffle.TransactionDetails
+      ): Promise<string>;
+      sendTransaction(
+        userAddress: string,
+        functionSignature: string,
+        sigR: string,
+        sigS: string,
+        sigV: number | BN | string,
+        txDetails?: Truffle.TransactionDetails
+      ): Promise<string>;
+      estimateGas(
+        userAddress: string,
+        functionSignature: string,
+        sigR: string,
+        sigS: string,
+        sigV: number | BN | string,
+        txDetails?: Truffle.TransactionDetails
+      ): Promise<number>;
+    };
+
     /**
      * See {IERC721-getApproved}.
      */
@@ -335,6 +428,12 @@ export interface OpenSeaPolygonERC721Instance extends Truffle.ContractInstance {
       tokenId: number | BN | string,
       txDetails?: Truffle.TransactionDetails
     ): Promise<string>;
+
+    getChainId(txDetails?: Truffle.TransactionDetails): Promise<BN>;
+
+    getDomainSeperator(txDetails?: Truffle.TransactionDetails): Promise<string>;
+
+    getNonce(user: string, txDetails?: Truffle.TransactionDetails): Promise<BN>;
 
     /**
      * See {IERC721Metadata-name}.
@@ -504,7 +603,7 @@ export interface OpenSeaPolygonERC721Instance extends Truffle.ContractInstance {
     ): Promise<string>;
 
     /**
-     * Override isApprovedForAll to auto-approve OS's proxy contract
+     * Override isApprovedForAll to auto-approve OS's proxy contract If not overriden, need to implement MetaTransaction for it Not sure why, with approved for all, opensea still unable to make gasless transfer. But, gasless sales works
      */
     isApprovedForAll(
       _owner: string,

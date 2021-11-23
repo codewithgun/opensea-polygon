@@ -10,5 +10,5 @@ const symbol: string = process.env.COLLECTION_SYMBOL || "";
 const OpenSeaPolygonERC721 = artifacts.require("OpenSeaPolygonERC721");
 
 module.exports = function (deployer) {
-	deployer.deploy(OpenSeaPolygonERC721, name, symbol);
+	deployer.deploy(OpenSeaPolygonERC721, name /**  + new Date().toLocaleDateString()*/, symbol);
 } as Truffle.Migration;

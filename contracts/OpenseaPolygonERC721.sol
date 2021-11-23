@@ -4,17 +4,22 @@ import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
+import "./mumbai/ContextMixin.sol";
+import "./mumbai/NativeMetaTransaction.sol";
 
 // SPDX-License-Identifier: MIT
 
-contract OpenSeaPolygonERC721 is ERC721URIStorage, ERC721Enumerable, Ownable {
+// NativeMetaTransaction support gasless transfer in OpenSea
+contract OpenSeaPolygonERC721 is ERC721URIStorage, ERC721Enumerable, Ownable, ContextMixin, NativeMetaTransaction {
     //Opensea mumbai ERC721 proxy 0xff7ca10af37178bdd056628ef42fd7f799fac77c
 
     using Strings for uint256;
 
     event PermanentURI(string _value, uint256 indexed _id);
 
-    constructor(string memory name_, string memory symbol_) ERC721(name_, symbol_) {}
+    constructor(string memory name_, string memory symbol_) ERC721(name_, symbol_) {
+        _initializeEIP712(name_);
+    }
 
     function mint(address to, uint256 tokenId) external onlyOwner {
         require(!_exists(tokenId), "id exists");
@@ -33,6 +38,7 @@ contract OpenSeaPolygonERC721 is ERC721URIStorage, ERC721Enumerable, Ownable {
     function _burn(uint256 tokenId) internal virtual override(ERC721, ERC721URIStorage) {
         super._burn(tokenId);
     }
+
     function supportsInterface(bytes4 interfaceId) public view virtual override(ERC721, ERC721Enumerable) returns (bool) {
         return super.supportsInterface(interfaceId);
     }
@@ -48,9 +54,20 @@ contract OpenSeaPolygonERC721 is ERC721URIStorage, ERC721Enumerable, Ownable {
         return "ipfs://QmbLGXvJCVK9Btymwm8htKBZgsTbEHTPZLd5BTF3PRTHRm/";
     }
 
+    function _msgSender()
+        internal
+        override
+        view
+        returns (address sender)
+    {
+        return ContextMixin.msgSender();
+    }
+
     /**
     * Override isApprovedForAll to auto-approve OS's proxy contract
     * If not overriden, need to implement MetaTransaction for it
+    * Not sure why, with approved for all, opensea still unable to make gasless transfer.
+    * But, gasless sales works
     */
     function isApprovedForAll(
         address _owner,

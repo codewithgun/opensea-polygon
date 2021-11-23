@@ -2,6 +2,7 @@
 /* tslint:disable */
 /* eslint-disable */
 
+import { EIP712BaseContract } from "./EIP712Base";
 import { ERC165Contract } from "./ERC165";
 import { ERC2309Contract } from "./ERC2309";
 import { ERC721Contract } from "./ERC721";
@@ -13,12 +14,14 @@ import { IERC721EnumerableContract } from "./IERC721Enumerable";
 import { IERC721MetadataContract } from "./IERC721Metadata";
 import { IERC721ReceiverContract } from "./IERC721Receiver";
 import { MigrationsContract } from "./Migrations";
+import { NativeMetaTransactionContract } from "./NativeMetaTransaction";
 import { OpenSeaPolygonERC721Contract } from "./OpenSeaPolygonERC721";
 import { OwnableContract } from "./Ownable";
 
 declare global {
   namespace Truffle {
     interface Artifacts {
+      require(name: "EIP712Base"): EIP712BaseContract;
       require(name: "ERC165"): ERC165Contract;
       require(name: "ERC2309"): ERC2309Contract;
       require(name: "ERC721"): ERC721Contract;
@@ -30,12 +33,14 @@ declare global {
       require(name: "IERC721Metadata"): IERC721MetadataContract;
       require(name: "IERC721Receiver"): IERC721ReceiverContract;
       require(name: "Migrations"): MigrationsContract;
+      require(name: "NativeMetaTransaction"): NativeMetaTransactionContract;
       require(name: "OpenSeaPolygonERC721"): OpenSeaPolygonERC721Contract;
       require(name: "Ownable"): OwnableContract;
     }
   }
 }
 
+export { EIP712BaseContract, EIP712BaseInstance } from "./EIP712Base";
 export { ERC165Contract, ERC165Instance } from "./ERC165";
 export { ERC2309Contract, ERC2309Instance } from "./ERC2309";
 export { ERC721Contract, ERC721Instance } from "./ERC721";
@@ -62,6 +67,10 @@ export {
   IERC721ReceiverInstance,
 } from "./IERC721Receiver";
 export { MigrationsContract, MigrationsInstance } from "./Migrations";
+export {
+  NativeMetaTransactionContract,
+  NativeMetaTransactionInstance,
+} from "./NativeMetaTransaction";
 export {
   OpenSeaPolygonERC721Contract,
   OpenSeaPolygonERC721Instance,
